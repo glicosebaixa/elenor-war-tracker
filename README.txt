@@ -1,8 +1,17 @@
-ELENOR WAR TRACKER - VERSAO AUTOMATICA
+ELENOR WAR TRACKER V3
 
-1) O banco e a Edge Function sync-wotserver ja foram configurados no Supabase.
-2) Para otimizar a funcao, execute database_sync.sql no SQL Editor e depois substitua o codigo da Edge Function pelo arquivo supabase/functions/sync-wotserver/index.ts e faça Deploy.
-3) Publique os arquivos da raiz no GitHub Pages, substituindo a versao anterior.
-4) O navegador chama sync-wotserver a cada 10 segundos e lê o banco a cada 2 segundos.
-5) UPANDO = XP aumentado nos ultimos 3 minutos. ONLINE/PARADO = online sem ganho por 3 minutos. OFFLINE = offline no WOTServer.
-6) Nunca coloque Secret key no GitHub/config.js. A chave do navegador em config.js e a publishable key.
+1) Execute database_v3.sql no Supabase SQL Editor.
+2) No Edge Function sync-wotserver, substitua todo o index.ts pelo arquivo supabase/functions/sync-wotserver/index.ts e faça Deploy.
+3) No GitHub Pages, substitua os arquivos da raiz pelos arquivos deste pacote (index.html, viewer.js, style.css, admin.html, admin.js, admin.css, config.js, .nojekyll).
+4) Abra /admin.html e entre com a conta de administrador já existente.
+5) Cadastre outras guilds pelo ID do WOTServer.
+6) Cadastre players Randoms pelo nome. Eles serão consultados individualmente.
+
+EXIVA: cada player tem botão “⧉ exiva”. Ele copia para a área de transferência exatamente: exiva "Nome do Player".
+
+O coletor mantém:
+🟢 UPANDO = XP ganho nos últimos 3 minutos
+🟡 ONLINE / PARADO = online sem ganho de XP por 3 minutos
+⚫ OFFLINE = WOTServer informa offline
+
+Observação: o GitHub Pages continua com o endereço atual até você configurar um domínio próprio.
