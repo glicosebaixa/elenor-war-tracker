@@ -1,0 +1,11 @@
+const db=supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY);let session=null;
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+async function check(){const r=await db.auth.getSession();session=r.data.session;if(session){const {data}=await db.from("admins").select("user_id").eq("user_id",session.user.id).maybeSingle();if(data){showApp();return}}document.getElementById("login").style.display="flex";document.getElementById("adminApp").style.display="none"}
+function showApp(){document.getElementById("login").style.display="none";document.getElementById("adminApp").style.display="flex";load()}
+document.getElementById("loginBtn").onclick=async()=>{const {error}=await db.auth.signInWithPassword({email:email.value,password:password.value});if(error){loginMsg.textContent=error.message;return}check()};
+document.getElementById("logout").onclick=async()=>{await db.auth.signOut();check()};
+document.getElementById("add").onclick=async()=>{const n=name.value.trim(),l=Number(level.value)||0,g=group.value,s=status.value;if(!n){msg.textContent="Informe o nome.";return}const {error}=await db.from("players").insert({name:n,level:l,group:g,status:s,last_seen:new Date().toISOString()});msg.textContent=error?error.message:"Jogador adicionado.";if(!error){name.value="";level.value="";load()}};
+async function remove(id){if(!confirm("Excluir este personagem?"))return;const {error}=await db.from("players").delete().eq("id",id);if(error)msg.textContent=error.message;else load()}
+function badge(s){return s==="online"?'<span class="status hunting"><i class="dot"></i>UPANDO</span>':s==="pz"?'<span class="status pz"><i class="dot"></i>PZ</span>':'<span class="status offline"><i class="dot"></i>OFFLINE</span>'}
+async function load(){const {data,error}=await db.from("players").select("*").order("level",{ascending:false});if(error){msg.textContent=error.message;return}adminBody.innerHTML=data.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${x.group==="soul"?"SOUL TATICS":"HUNTED"}</td><td>${x.level}</td><td>${badge(x.status)}</td><td><button class="danger" onclick="remove('${x.id}')">Excluir</button></td></tr>`).join("")}
+check();

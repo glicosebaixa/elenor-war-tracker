@@ -1,79 +1,16 @@
 <!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Elenor War Tracker</title>
-<link rel="stylesheet" href="style.css">
-</head>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Elenor War Tracker — Viewer</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand"><span class="brand-dot"></span><div><b>ELENOR</b><small>WAR TRACKER</small></div></div>
-    <nav>
-      <button class="nav active" data-page="dashboard">◈ Dashboard</button>
-      <button class="nav" data-page="soul">⚔ Soul Tatics</button>
-      <button class="nav" data-page="hunteds">☠ Hunteds</button>
-      <button class="nav" data-page="settings">⚙ Administração</button>
-    </nav>
-    <div class="side-foot">Mundo <b>ELENOR</b><br><span id="updated">Atualizando...</span></div>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">WORLD / ELENOR</div>
-        <h1 id="pageTitle">Dashboard</h1>
-      </div>
-      <div class="top-actions">
-        <input id="search" placeholder="Pesquisar personagem..." />
-        <button class="refresh" id="refresh">↻ Atualizar</button>
-      </div>
-    </header>
-
-    <section id="dashboard" class="page active-page">
-      <div class="hero">
-        <div><span class="tag">INIMIGOS MONITORADOS</span><h2>Soul Tatics + Hunteds</h2><p>Controle rápido de quem está upando, parado no PZ ou offline.</p></div>
-        <div class="hero-clock" id="clock">--:--:--</div>
-      </div>
-      <div class="cards">
-        <div class="card"><span>MONITORADOS</span><strong id="total">0</strong></div>
-        <div class="card online"><span>UPANDO</span><strong id="hunting">0</strong></div>
-        <div class="card pz"><span>PZ</span><strong id="pz">0</strong></div>
-        <div class="card off"><span>OFFLINE</span><strong id="offline">0</strong></div>
-      </div>
-      <div class="section-head"><h3>Atividade atual</h3><span id="lastScan">Última leitura —</span></div>
-      <div class="table-wrap"><table><thead><tr><th>PERSONAGEM</th><th>GRUPO</th><th>LEVEL</th><th>STATUS</th><th>ÚLTIMA ATIVIDADE</th></tr></thead><tbody id="tableBody"></tbody></table></div>
-    </section>
-
-    <section id="soul" class="page">
-      <div class="section-head"><div><h3>Soul Tatics</h3><p>Guild inimiga monitorada.</p></div><span class="pill enemy">ENEMY GUILD</span></div>
-      <div class="filters"><button class="filter active" data-filter="all">Todos</button><button class="filter" data-filter="hunting">Upando</button><button class="filter" data-filter="pz">PZ</button><button class="filter" data-filter="offline">Offline</button></div>
-      <div class="grid" id="soulGrid"></div>
-    </section>
-
-    <section id="hunteds" class="page">
-      <div class="section-head"><div><h3>Hunteds</h3><p>Personagens fora da guild adicionados manualmente.</p></div><button class="primary" id="addHunted">+ Adicionar hunted</button></div>
-      <div class="grid" id="huntedGrid"></div>
-    </section>
-
-    <section id="settings" class="page">
-      <div class="section-head"><div><h3>Administração</h3><p>Cadastre personagens e controle os grupos.</p></div></div>
-      <div class="admin-panel">
-        <div class="form">
-          <input id="charName" placeholder="Nome do personagem">
-          <input id="charLevel" type="number" placeholder="Level">
-          <select id="charGroup"><option value="soul">Soul Tatics</option><option value="hunted">Hunted</option></select>
-          <select id="charStatus"><option value="hunting">Upando</option><option value="pz">PZ</option><option value="offline">Offline</option></select>
-          <button class="primary" id="saveChar">Adicionar</button>
-        </div>
-        <div class="hint">Os dados cadastrados nesta versão ficam salvos no navegador. Depois podemos ligar o painel diretamente aos dados do WOTServer.</div>
-      </div>
-      <div class="section-head"><h3>Personagens cadastrados</h3></div>
-      <div class="table-wrap"><table><thead><tr><th>NOME</th><th>GRUPO</th><th>LEVEL</th><th>STATUS</th><th></th></tr></thead><tbody id="adminBody"></tbody></table></div>
-    </section>
-  </main>
-</div>
-<script src="app.js"></script>
-</body>
-</html>
+<div class="app"><aside class="sidebar"><div class="brand"><span class="brand-dot"></span><div><b>ELENOR</b><small>WAR TRACKER</small></div></div>
+<nav><a class="nav active" href="index.html">◈ Online</a><a class="nav" href="soul.html">⚔ Soul Tatics</a><a class="nav" href="hunteds.html">☠ Hunteds</a></nav>
+<div class="side-foot">Mundo <b>ELENOR</b><br><span id="updated">Conectando...</span></div></aside>
+<main class="main"><header class="topbar"><div><div class="eyebrow">VIEWER / ELENOR</div><h1>Quem está online</h1></div><div class="top-actions"><input id="search" placeholder="Pesquisar personagem..."><button id="refresh">↻</button></div></header>
+<div class="hero"><div><span class="tag">ACESSO DE VISUALIZAÇÃO</span><h2>Soul Tatics + Hunteds</h2><p>Este link é somente para visualização. A administração fica protegida em outro endereço.</p></div><div class="hero-clock" id="clock">--:--:--</div></div>
+<div class="cards"><div class="card"><span>ONLINE</span><strong id="online">0</strong></div><div class="card"><span>SOUL TATICS</span><strong id="soul">0</strong></div><div class="card"><span>HUNTEDS</span><strong id="hunted">0</strong></div></div>
+<div class="section-head"><h3>Jogadores online</h3><span id="scan">Atualizando...</span></div>
+<div class="table-wrap"><table><thead><tr><th>PERSONAGEM</th><th>GRUPO</th><th>LEVEL</th><th>STATUS</th><th>ÚLTIMA ATIVIDADE</th></tr></thead><tbody id="body"></tbody></table></div>
+<div class="viewer-note">Link de visualização — nenhuma função de cadastro, edição ou exclusão está disponível aqui.</div>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="viewer.js"></script>
+</body></html>
