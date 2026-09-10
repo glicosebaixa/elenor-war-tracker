@@ -1,10 +1,28 @@
-const db=supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY);let session=null,groups=[];
-const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-async function isAdmin(){const r=await db.auth.getSession();session=r.data.session;if(!session)return false;const {data}=await db.from('admins').select('user_id').eq('user_id',session.user.id).maybeSingle();return !!data}
-async function boot(){if(await isAdmin()){$('login').hidden=true;$('app').hidden=false;await load()}else{$('login').hidden=false;$('app').hidden=true}}
+const db = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+let session = null, groups = [];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+async function isAdmin(){
+  const r = await db.auth.getSession();
+  session = r.data.session;
+  if (!session) return false;
+  const {data} = await db.from('admins').select('user_id').eq('user_id', session.user.id).maybeSingle();
+  return !!data;
+}
+async function boot(){
+  if(await isAdmin()){$('login').hidden=true;$('app').hidden=false;await load();}
+  else{$('login').hidden=false;$('app').hidden=true;}
+}
 $('loginBtn').onclick=async()=>{const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginMsg').textContent=error.message;return}boot()};
 $('logout').onclick=async()=>{await db.auth.signOut();boot()};
-async function load(){const g=await db.from('tracker_groups').select('*').order('sort_order').order('name');if(g.error){$('guildMsg').textContent=g.error.message;return}groups=g.data||[];renderGroups();fillGroups();const p=await db.from('players').select('id,name,level,status,xp,group_id,group').order('name');if(!p.error){$('playerCount').textContent=(p.data||[]).length+' jogadores';$('playersBody').innerHTML=(p.data||[]).map(x=>{const gr=groups.find(g=>g.id===x.group_id);const st=x.status==='offline'?'<span class="off">OFFLINE</span>':x.status==='online'?'<span class="ok">UPANDO</span>':'<span>ONLINE / PARADO</span>';return `<tr><td><b>${esc(x.name)}</b></td><td>${esc(gr?.name||x.group||'—')}</td><td>${esc(x.level)}</td><td>${st}</td><td>${x.xp==null?'—':Number(x.xp).toLocaleString('pt-BR')}</td><td><button class="danger" onclick="removePlayer('${x.id}')">Excluir</button></td></tr>`}).join('')}}
+async function load(){
+  const g=await db.from('tracker_groups').select('*').order('sort_order').order('name');
+  if(g.error){$('guildMsg').textContent=g.error.message;return}
+  groups=g.data||[];renderGroups();fillGroups();
+  const p=await db.from('players').select('id,name,level,status,xp,group_id,group').order('name');
+  if(!p.error){$('playerCount').textContent=(p.data||[]).length+' jogadores';$('playersBody').innerHTML=(p.data||[]).map(x=>{const gr=groups.find(g=>g.id===x.group_id);const st=x.status==='offline'?'<span class="off">OFFLINE</span>':x.status==='online'?'<span class="ok">UPANDO</span>':'<span>ONLINE / PARADO</span>';return `<tr><td><b>${esc(x.name)}</b></td><td>${esc(gr?.name||x.group||'—')}</td><td>${esc(x.level)}</td><td>${st}</td><td>${x.xp==null?'—':Number(x.xp).toLocaleString('pt-BR')}</td><td><button class="danger" onclick="removePlayer('${x.id}')">Excluir</button></td></tr>`}).join('')}
+}
 function renderGroups(){$('groupsBody').innerHTML=groups.map(g=>`<tr><td><b>${esc(g.name)}</b></td><td>${g.kind==='guild'?'GUILD':'RANDOMS'}</td><td>${g.wot_guild_id??'—'}</td><td>${g.active?'🟢':'⚪'}</td><td>${g.slug==='randoms'?'—':`<button class="ghost" onclick="toggleGroup('${g.id}',${!g.active})">${g.active?'Desativar':'Ativar'}</button> <button class="danger" onclick="deleteGroup('${g.id}')">Excluir</button>`}</td></tr>`).join('')}
 function fillGroups(){$('rGroup').innerHTML=groups.filter(g=>g.active).map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}
 $('addGuild').onclick=async()=>{const name=$('gName').value.trim(),id=Number($('gId').value),order=Number($('gOrder').value)||100;if(!name||!id){$('guildMsg').textContent='Informe nome e ID da guild.';return}const slug=name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const {error}=await db.from('tracker_groups').insert({name,slug,kind:'guild',wot_guild_id:id,guild_url:`https://www.wotserver.com/?view=guilds&action=show&guild=${id}`,active:true,sort_order:order});$('guildMsg').textContent=error?error.message:'Guild adicionada!';if(!error){$('gName').value='';$('gId').value='';await load()}};
@@ -12,5 +30,13 @@ $('addRandom').onclick=async()=>{const name=$('rName').value.trim(),gid=$('rGrou
 window.removePlayer=async id=>{if(!confirm('Excluir este player?'))return;const {error}=await db.from('players').delete().eq('id',id);if(error)alert(error.message);else load()};
 window.toggleGroup=async(id,active)=>{const {error}=await db.from('tracker_groups').update({active}).eq('id',id);if(error)alert(error.message);else load()};
 window.deleteGroup=async id=>{if(!confirm('Excluir esta guild do painel? Os jogadores serão mantidos sem grupo.'))return;const {error}=await db.from('tracker_groups').delete().eq('id',id);if(error)alert(error.message);else load()};
-$('syncNow').onclick=async()=>{const r=await fetch(window.SUPABASE_URL+'/functions/v1/sync-wotserver',{method:'POST',headers:{apikey:window.SUPABASE_KEY,'Content-Type':'application/json'},body:'{}'});const j=await r.json().catch(()=>({}));alert(j.ok?`Sincronizado: ${j.members||0} jogadores, ${j.xp_gains||0} ganhos de XP.`:`Erro: ${j.error||r.status}`);load()};
+$('syncNow').onclick=async()=>{
+  const r=await db.auth.getSession();
+  const token=r.data.session?.access_token;
+  if(!token){alert('Sessão de administrador expirada. Faça login novamente.');return;}
+  const res=await fetch(window.SUPABASE_URL+'/functions/v1/sync-wotserver',{method:'POST',headers:{'x-elenor-admin-token':token,'Content-Type':'application/json'},body:'{}'});
+  const j=await res.json().catch(()=>({}));
+  alert(j.ok?`Sincronizado: ${j.members||0} jogadores, ${j.xp_gains||0} ganhos de XP, ${j.deaths_inserted||0} novas mortes.`:`Erro: ${j.error||res.status}`);
+  load();
+};
 boot();
