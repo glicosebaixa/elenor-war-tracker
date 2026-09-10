@@ -19,24 +19,20 @@ $('logout').onclick=async()=>{await db.auth.signOut();boot()};
 async function load(){
   const g=await db.from('tracker_groups').select('*').order('sort_order').order('name');
   if(g.error){$('guildMsg').textContent=g.error.message;return}
-  groups=g.data||[];renderGroups();fillGroups();
+  groups=g.data||[];renderGroups();fillGroups();fillTopFragsGuild();
+  const cfg=await db.from('top_frags_config').select('guild_id,reset_hour').eq('id',1).maybeSingle();
+  if(!cfg.error&&cfg.data){$('topFragsGuild').value=cfg.data.guild_id||'';}
   const p=await db.from('players').select('id,name,level,status,xp,group_id,group').order('name');
   if(!p.error){$('playerCount').textContent=(p.data||[]).length+' jogadores';$('playersBody').innerHTML=(p.data||[]).map(x=>{const gr=groups.find(g=>g.id===x.group_id);const st=x.status==='offline'?'<span class="off">OFFLINE</span>':x.status==='online'?'<span class="ok">UPANDO</span>':'<span>ONLINE / PARADO</span>';return `<tr><td><b>${esc(x.name)}</b></td><td>${esc(gr?.name||x.group||'—')}</td><td>${esc(x.level)}</td><td>${st}</td><td>${x.xp==null?'—':Number(x.xp).toLocaleString('pt-BR')}</td><td><button class="danger" onclick="removePlayer('${x.id}')">Excluir</button></td></tr>`}).join('')}
 }
 function renderGroups(){$('groupsBody').innerHTML=groups.map(g=>`<tr><td><b>${esc(g.name)}</b></td><td>${g.kind==='guild'?'GUILD':'RANDOMS'}</td><td>${g.wot_guild_id??'—'}</td><td>${g.active?'🟢':'⚪'}</td><td>${g.slug==='randoms'?'—':`<button class="ghost" onclick="toggleGroup('${g.id}',${!g.active})">${g.active?'Desativar':'Ativar'}</button> <button class="danger" onclick="deleteGroup('${g.id}')">Excluir</button>`}</td></tr>`).join('')}
 function fillGroups(){$('rGroup').innerHTML=groups.filter(g=>g.active).map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}
-$('addGuild').onclick=async()=>{const name=$('gName').value.trim(),id=Number($('gId').value),order=Number($('gOrder').value)||100;if(!name||!id){$('guildMsg').textContent='Informe nome e ID da guild.';return}const slug=name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const {error}=await db.from('tracker_groups').insert({name,slug,kind:'guild',wot_guild_id:id,guild_url:`https://www.wotserver.com/?view=guilds&action=show&guild=${id}`,active:true,sort_order:order});$('guildMsg').textContent=error?error.message:'Guild adicionada!';if(!error){$('gName').value='';$('gId').value='';await load()}};
+function fillTopFragsGuild(){$('topFragsGuild').innerHTML='<option value="">Selecione a guild</option>'+groups.filter(g=>g.active&&g.kind==='guild').map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}
+$('saveTopFrags').onclick=async()=>{const guildId=$('topFragsGuild').value||null;const {error}=await db.from('top_frags_config').upsert({id:1,guild_id:guildId,reset_hour:10,updated_at:new Date().toISOString()},{onConflict:'id'});$('topFragsMsg').textContent=error?error.message:'TOP FRAGS configurado! Ranking reinicia às 10:00 todos os dias.';};
+$('addGuild').onclick=async()=>{const name=$('gName').value.trim(),id=Number($('gId').value),order=Number($('gOrder').value)||100;if(!name||!id){$('guildMsg').textContent='Informe nome e ID da guild.';return}const slug=name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const {error}=await db.from('tracker_groups').insert({name,slug,kind:'guild',wot_guild_id:id,guild_url:`https://www.wotserver.com/?view=guilds&action=show&guild=${id}`,active:true,sort_order:order});$('guildMsg').textContent=error?' '+error.message:'Guild adicionada!';if(!error){$('gName').value='';$('gId').value='';await load()}};
 $('addRandom').onclick=async()=>{const name=$('rName').value.trim(),gid=$('rGroup').value,level=Number($('rLevel').value)||0;if(!name||!gid){$('randomMsg').textContent='Informe nome e grupo.';return}const {error}=await db.from('players').upsert({name,level,group_id:gid,group:groups.find(g=>g.id===gid)?.slug||'randoms',status:'pz',source:'wotserver',source_url:`https://www.wotserver.com/?name=${encodeURIComponent(name)}&view=characters`},{onConflict:'name'});$('randomMsg').textContent=error?error.message:'Player adicionado!';if(!error){$('rName').value='';await load()}};
 window.removePlayer=async id=>{if(!confirm('Excluir este player?'))return;const {error}=await db.from('players').delete().eq('id',id);if(error)alert(error.message);else load()};
 window.toggleGroup=async(id,active)=>{const {error}=await db.from('tracker_groups').update({active}).eq('id',id);if(error)alert(error.message);else load()};
 window.deleteGroup=async id=>{if(!confirm('Excluir esta guild do painel? Os jogadores serão mantidos sem grupo.'))return;const {error}=await db.from('tracker_groups').delete().eq('id',id);if(error)alert(error.message);else load()};
-$('syncNow').onclick=async()=>{
-  const r=await db.auth.getSession();
-  const token=r.data.session?.access_token;
-  if(!token){alert('Sessão de administrador expirada. Faça login novamente.');return;}
-  const res=await fetch(window.SUPABASE_URL+'/functions/v1/sync-wotserver',{method:'POST',headers:{'x-elenor-admin-token':token,'Content-Type':'application/json'},body:'{}'});
-  const j=await res.json().catch(()=>({}));
-  alert(j.ok?`Sincronizado: ${j.members||0} jogadores, ${j.xp_gains||0} ganhos de XP, ${j.deaths_inserted||0} novas mortes.`:`Erro: ${j.error||res.status}`);
-  load();
-};
+$('syncNow').onclick=async()=>{const r=await db.auth.getSession();const token=r.data.session?.access_token;if(!token){alert('Sessão de administrador expirada. Faça login novamente.');return}const res=await fetch(window.SUPABASE_URL+'/functions/v1/sync-wotserver',{method:'POST',headers:{'x-elenor-admin-token':token,'Content-Type':'application/json'},body:'{}'});const j=await res.json().catch(()=>({}));alert(j.ok?`Sincronizado: ${j.members||0} jogadores, ${j.xp_gains||0} ganhos de XP, ${j.deaths_inserted||0} novas mortes.`:`Erro: ${j.error||res.status}`);load()};
 boot();
