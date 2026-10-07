@@ -3,7 +3,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const fmt=n=>n==null?'—':Number(n).toLocaleString('pt-BR');
 const rate=n=>n==null?'—':Number(n)>=1e9?(Number(n)/1e9).toFixed(2)+'B/h':Number(n)>=1e6?(Number(n)/1e6).toFixed(2)+'M/h':Number(n).toLocaleString('pt-BR')+'/h';
 function ago(iso){if(!iso)return '—';const s=Math.max(0,Math.floor((Date.now()-Date.parse(iso))/1000));if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m '+s%60+'s';return Math.floor(m/60)+'h '+m%60+'m'}
-function statusOf(p){if(p.status==='offline')return'offline';const gain=p.last_xp_gain_at;return gain&&Date.now()-Date.parse(gain)<180000?'online':'pz'}
+function statusOf(p){return p.status==='online'?'online':p.status==='pz'?'pz':'offline'}
 function exiva(name){navigator.clipboard?.writeText(`exiva \"${name}\"`).catch(()=>{})}
 function characterUrl(name){return `https://futureot.com.br/characters?name=${encodeURIComponent(name)}`}
 function localDayKey(iso){return new Date(iso).toLocaleDateString('sv-SE',{timeZone:'America/Sao_Paulo'})}
