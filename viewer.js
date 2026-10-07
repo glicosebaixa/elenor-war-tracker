@@ -105,7 +105,7 @@ async function load(){
     db.from('top_frags_config').select('guild_id,reset_hour').eq('id',1).maybeSingle(),
     db.from('player_kill_events').select('killer_name,victim_name,died_at,source_key').order('died_at',{ascending:false}).limit(2000)
   ]);
-  const fatal=g.error||p.error||l.error;
+  const fatal=g.error||p.error||l.error||d.error||cfg.error||f.error;
   if(fatal){document.querySelector('#groups').innerHTML='<div class="group empty">Erro ao carregar dados: '+esc(fatal.message)+'</div>';document.querySelector('#sync').textContent='● Erro de sincronização';return}
   const next=(l.data||[]);
   if(!state.firstLoad){
