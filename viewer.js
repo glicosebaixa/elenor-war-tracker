@@ -54,17 +54,17 @@ function render(){
   let online=0,off=0,pending=0,ups=0;
   const html=groups.filter(g=>g.active).map(g=>{
     let list=players.filter(p=>(p.group_id===g.id||(!p.group_id&&p.group===g.slug))&&(!q||p.name.toLowerCase().includes(q))).filter(p=>{
-      const s=recentLevelUp(p)?'levelup':(!p.last_seen?'pending':(p.status==='online'?'online':'offline'));
+      const s=recentLevelUp(p)?'levelup':(p.status==='online'?'online':(p.status==='pending'?'pending':'offline'));
       return state.filter==='all'||state.filter===s;
     }).sort((a,b)=>{
       const sa=recentLevelUp(a)?'levelup':(!a.last_seen?'pending':(a.status==='online'?'online':'offline'));
-      const sb=recentLevelUp(b)?'levelup':(!b.last_seen?'pending':(b.status==='online'?'online':'offline'));
+      const sb=recentLevelUp(b)?'levelup':(b.status==='online'?'online':(b.status==='pending'?'pending':'offline'));
       const rank={levelup:0,online:1,pending:2,offline:3};
       return rank[sa]-rank[sb]||(Number(b.level)||0)-(Number(a.level)||0)||a.name.localeCompare(b.name);
     });
     if(!list.length)return '';
     const body=list.map(p=>{
-      const isUp=recentLevelUp(p), isPending=!p.last_seen&&!isUp, isOnline=p.status==='online'&&!isPending;
+      const isUp=recentLevelUp(p), isPending=p.status==='pending'&&!isUp, isOnline=p.status==='online';
       if(isUp)ups++; else if(isPending)pending++; else if(isOnline)online++; else off++;
       const cls=isUp?'s-up':isPending?'s-pending':isOnline?'s-online':'s-off';
       const label=isUp?'LEVEL UP':isPending?'AGUARDANDO':'OFFLINE';
