@@ -51,23 +51,23 @@ function render(){
   const {groups,players,deaths,frags,levelUps}=state;
   const q=state.search.trim().toLowerCase();
   renderTopFrags();
-  let online=0,off=0,ups=0;
+  let online=0,off=0,pending=0,ups=0;
   const html=groups.filter(g=>g.active).map(g=>{
     let list=players.filter(p=>(p.group_id===g.id||(!p.group_id&&p.group===g.slug))&&(!q||p.name.toLowerCase().includes(q))).filter(p=>{
-      const s=recentLevelUp(p)?'levelup':(p.status==='online'?'online':'offline');
+      const s=recentLevelUp(p)?'levelup':(!p.last_seen?'pending':(p.status==='online'?'online':'offline'));
       return state.filter==='all'||state.filter===s;
     }).sort((a,b)=>{
       const sa=recentLevelUp(a)?'levelup':(a.status==='online'?'online':'offline');
-      const sb=recentLevelUp(b)?'levelup':(b.status==='online'?'online':'offline');
-      const rank={levelup:0,online:1,offline:2};
+      const sb=recentLevelUp(b)?'levelup':(!b.last_seen?'pending':(b.status==='online'?'online':'offline'));
+      const rank={levelup:0,online:1,pending:2,offline:3};
       return rank[sa]-rank[sb]||(Number(b.level)||0)-(Number(a.level)||0)||a.name.localeCompare(b.name);
     });
     if(!list.length)return '';
     const body=list.map(p=>{
-      const isUp=recentLevelUp(p), isOnline=p.status==='online';
-      if(isUp)ups++; if(isOnline)online++; else off++;
-      const cls=isUp?'s-up':isOnline?'s-online':'s-off';
-      const label=isUp?'LEVEL UP':isOnline?'ONLINE':'OFFLINE';
+      const isUp=recentLevelUp(p), isPending=!p.last_seen&&!isUp, isOnline=p.status==='online'&&!isPending;
+      if(isUp)ups++; else if(isPending)pending++; else if(isOnline)online++; else off++;
+      const cls=isUp?'s-up':isPending?'s-pending':isOnline?'s-online':'s-off';
+      const label=isUp?'LEVEL UP':isPending?'AGUARDANDO':'OFFLINE';
       const url=characterUrl(p.name);
       const outfit=p.outfit_url?`<img class="player-outfit" src="${esc(p.outfit_url)}" alt="" loading="lazy" onerror="this.style.display='none'">`:'';
       const event=levelUps.find(x=>x.player_id===p.id);
@@ -88,6 +88,7 @@ function render(){
   document.querySelector('#up').textContent=ups;
   document.querySelector('#online').textContent=online;
   document.querySelector('#off').textContent=off;
+  document.querySelector('#pending').textContent=pending;
   document.querySelector('#playerTotal').textContent=players.length;
   document.querySelector('#dailyLevels').textContent=daily;
   document.querySelector('#updated').textContent=new Date().toLocaleTimeString('pt-BR');
@@ -98,7 +99,7 @@ async function load(){
   document.querySelector('#sync').textContent='● Sincronizando...';
   const [g,p,d,l,cfg,f]=await Promise.all([
     db.from('tracker_groups').select('id,name,slug,kind,active,sort_order').eq('active',true).order('sort_order'),
-    db.from('players').select('id,name,level,status,group,group_id,outfit_url,vocation').order('name'),
+    db.from('players').select('id,name,level,status,last_seen,group,group_id,outfit_url,vocation').order('name'),
     db.from('player_deaths').select('player_id,player_name,level,reason,died_at').order('died_at',{ascending:false}).limit(1000),
     db.from('player_level_up_events').select('id,player_id,player_name,old_level,new_level,gained_at').order('gained_at',{ascending:false}).limit(100),
     db.from('top_frags_config').select('guild_id,reset_hour').eq('id',1).maybeSingle(),
