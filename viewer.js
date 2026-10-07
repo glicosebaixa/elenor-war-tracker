@@ -16,7 +16,7 @@ function notifyLevelUps(items){
   if(sig===lastAlertSignature)return;
   lastAlertSignature=sig;
   const box=document.querySelector('#levelUpNotice');
-  const text=items.slice(0,5).map(x=>`🚀 ${esc(x.player_name)} UPÔU PARA ${fmt(x.new_level)}!`).join('<br>');
+  const text=items.slice(0,5).map(x=>`🚀 ${esc(x.player_name)} UPOU PARA ${fmt(x.new_level)}!`).join('<br>');
   box.innerHTML=`<div class="levelup-banner">${text}</div>`;
   setTimeout(()=>{if(box)box.innerHTML=''},12000);
   if(!state.firstLoad && newest){
@@ -57,7 +57,7 @@ function render(){
       const s=recentLevelUp(p)?'levelup':(!p.last_seen?'pending':(p.status==='online'?'online':'offline'));
       return state.filter==='all'||state.filter===s;
     }).sort((a,b)=>{
-      const sa=recentLevelUp(a)?'levelup':(a.status==='online'?'online':'offline');
+      const sa=recentLevelUp(a)?'levelup':(!a.last_seen?'pending':(a.status==='online'?'online':'offline'));
       const sb=recentLevelUp(b)?'levelup':(!b.last_seen?'pending':(b.status==='online'?'online':'offline'));
       const rank={levelup:0,online:1,pending:2,offline:3};
       return rank[sa]-rank[sb]||(Number(b.level)||0)-(Number(a.level)||0)||a.name.localeCompare(b.name);
