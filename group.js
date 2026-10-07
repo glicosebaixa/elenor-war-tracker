@@ -3,7 +3,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 function statusHtml(p,ups){
   const up=ups.some(x=>x.player_id===p.id&&Date.now()-Date.parse(x.gained_at)<=5*60*1000);
   if(up)return '<span class="status hunting"><i class="dot"></i>LEVEL UP</span>';
-  return !p.last_seen?"<span class="status pending"><i class="dot"></i>AGUARDANDO</span>":p.status==="online"?'<span class="status pz"><i class="dot"></i>ONLINE</span>':'<span class="status offline"><i class="dot"></i>OFFLINE</span>';
+  return p.status==="pending"?"<span class="status pending"><i class="dot"></i>AGUARDANDO</span>":p.status==="online"?'<span class="status pz"><i class="dot"></i>ONLINE</span>':'<span class="status offline"><i class="dot"></i>OFFLINE</span>';
 }
 async function load(){
   const [{data:g},{data}]=await Promise.all([
