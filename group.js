@@ -3,12 +3,12 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 function statusHtml(p,ups){
   const up=ups.some(x=>x.player_id===p.id&&Date.now()-Date.parse(x.gained_at)<=5*60*1000);
   if(up)return '<span class="status hunting"><i class="dot"></i>LEVEL UP</span>';
-  return p.status==="online"?'<span class="status pz"><i class="dot"></i>ONLINE</span>':'<span class="status offline"><i class="dot"></i>OFFLINE</span>';
+  return !p.last_seen?"<span class="status pending"><i class="dot"></i>AGUARDANDO</span>":p.status==="online"?'<span class="status pz"><i class="dot"></i>ONLINE</span>':'<span class="status offline"><i class="dot"></i>OFFLINE</span>';
 }
 async function load(){
   const [{data:g},{data}]=await Promise.all([
     db.from("tracker_groups").select("id,name,slug").eq("active",true).order("sort_order"),
-    db.from("players").select("id,name,level,status,group,group_id,vocation").order("level",{ascending:false})
+    db.from("players").select("id,name,level,status,last_seen,group,group_id,vocation").order("level",{ascending:false})
   ]);
   const groups=g||[];
   const {data:ups}=await db.from("player_level_up_events").select("id,player_id,player_name,old_level,new_level,gained_at").order("gained_at",{ascending:false}).limit(100);
