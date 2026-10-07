@@ -5,7 +5,7 @@ const rate=n=>n==null?'—':Number(n)>=1e9?(Number(n)/1e9).toFixed(2)+'B/h':Numb
 function ago(iso){if(!iso)return '—';const s=Math.max(0,Math.floor((Date.now()-Date.parse(iso))/1000));if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m '+s%60+'s';return Math.floor(m/60)+'h '+m%60+'m'}
 function statusOf(p){if(p.status==='offline')return'offline';const gain=p.last_xp_gain_at;return gain&&Date.now()-Date.parse(gain)<180000?'online':'pz'}
 function exiva(name){navigator.clipboard?.writeText(`exiva \"${name}\"`).catch(()=>{})}
-function characterUrl(name){return `https://www.wotserver.com/?view=characters&name=${encodeURIComponent(name)}`}
+function characterUrl(name){return `https://futureot.com.br/characters?name=${encodeURIComponent(name)}`}
 function localDayKey(iso){return new Date(iso).toLocaleDateString('sv-SE',{timeZone:'America/Sao_Paulo'})}
 function topFragsStart(){const shifted=new Date(Date.now()-3*60*60*1000);let y=shifted.getUTCFullYear(),m=shifted.getUTCMonth(),d=shifted.getUTCDate();if(shifted.getUTCHours()<10)d--;return new Date(Date.UTC(y,m,d,13,0,0))}
 function vocationLabel(p){return p?.vocation?`<span class=\"player-vocation\">(${esc(p.vocation)})</span>`:''}
