@@ -92,7 +92,7 @@ function render(){
   document.querySelector('#playerTotal').textContent=players.length;
   document.querySelector('#dailyLevels').textContent=daily;
   document.querySelector('#updated').textContent=new Date().toLocaleTimeString('pt-BR');
-  document.querySelector('#sync').textContent='● ROSTER IMPORTADO · '+new Date().toLocaleTimeString('pt-BR');
+  document.querySelector('#sync').textContent='● DADOS DO FUTUREOT · '+new Date().toLocaleTimeString('pt-BR');
 }
 
 async function load(){
