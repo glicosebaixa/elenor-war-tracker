@@ -57,8 +57,8 @@ function render(){
       const s=recentLevelUp(p)?'levelup':(p.status==='online'?'online':(p.status==='pending'?'pending':'offline'));
       return state.filter==='all'||state.filter===s;
     }).sort((a,b)=>{
-      const sa=recentLevelUp(a)?'levelup':(!a.last_seen?'pending':(a.status==='online'?'online':'offline'));
-      const sb=recentLevelUp(b)?'levelup':(b.status==='online'?'online':(b.status==='pending'?'pending':'offline'));
+      const sa=recentLevelUp(a)?'levelup':(a.status==='pending'?'pending':(a.status==='online'?'online':'offline'));
+      const sb=recentLevelUp(b)?'levelup':(b.status==='pending'?'pending':(b.status==='online'?'online':'offline'));
       const rank={levelup:0,online:1,pending:2,offline:3};
       return rank[sa]-rank[sb]||(Number(b.level)||0)-(Number(a.level)||0)||a.name.localeCompare(b.name);
     });
@@ -96,7 +96,16 @@ function render(){
 }
 
 async function load(){
-  document.querySelector('#sync').textContent='● Sincronizando...';
+  document.querySelector('#sync').textContent='● Atualizando status oficial do Middle Earth...';
+  try {
+    const syncResponse = await fetch(`${window.SUPABASE_URL}/functions/v1/middle-earth-sync`, { method:'POST' });
+    const syncData = await syncResponse.json();
+    if (!syncResponse.ok || !syncData.ok) throw new Error(syncData.error || 'Falha na sincronização');
+    document.querySelector('#sync').textContent=`● ONLINE ${syncData.onlineCount} · OFFLINE ${syncData.offlineCount} · ${new Date().toLocaleTimeString('pt-BR')}`;
+  } catch (syncError) {
+    console.warn('Middle Earth online sync:', syncError);
+    document.querySelector('#sync').textContent='● Não foi possível consultar a lista oficial agora; exibindo último status salvo.';
+  }
   const [g,p,d,l,cfg,f]=await Promise.all([
     db.from('tracker_groups').select('id,name,slug,kind,active,sort_order').eq('active',true).order('sort_order'),
     db.from('players').select('id,name,level,status,last_seen,group,group_id,outfit_url,vocation').order('name'),
