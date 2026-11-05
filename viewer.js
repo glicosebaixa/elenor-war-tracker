@@ -2,7 +2,7 @@ const db=supabase.createClient(window.SUPABASE_URL,window.SUPABASE_KEY);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmt=n=>n==null?'—':Number(n).toLocaleString('pt-BR');
 function ago(iso){if(!iso)return '—';const s=Math.max(0,Math.floor((Date.now()-Date.parse(iso))/1000));if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m '+s%60+'s';return Math.floor(m/60)+'h '+m%60+'m'}
-function characterUrl(name){return `https://futureot.com.br/characters?name=${encodeURIComponent(name)}`}
+function characterUrl(name){return `https://middleearth-server.com/?characters/${encodeURIComponent(name)}`}
 function vocationLabel(p){return p?.vocation?`<span class="player-vocation">(${esc(p.vocation)})</span>`:''}
 function exiva(name){navigator.clipboard?.writeText(`exiva "${name}"`).catch(()=>{})}
 function recentLevelUp(p){return state.levelUps.some(x=>x.player_id===p.id && Date.now()-Date.parse(x.gained_at)<=5*60*1000)}
@@ -21,7 +21,7 @@ function notifyLevelUps(items){
   setTimeout(()=>{if(box)box.innerHTML=''},12000);
   if(!state.firstLoad && newest){
     try{
-      if('Notification' in window && Notification.permission==='granted') new Notification('FutureOT — LEVEL UP!',{body:`${newest.player_name} upou para ${newest.new_level}.`});
+      if('Notification' in window && Notification.permission==='granted') new Notification('Middle Earth — LEVEL UP!',{body:`${newest.player_name} upou para ${newest.new_level}.`});
     }catch{}
   }
 }
@@ -92,7 +92,7 @@ function render(){
   document.querySelector('#playerTotal').textContent=players.length;
   document.querySelector('#dailyLevels').textContent=daily;
   document.querySelector('#updated').textContent=new Date().toLocaleTimeString('pt-BR');
-  document.querySelector('#sync').textContent='● DADOS DO FUTUREOT · '+new Date().toLocaleTimeString('pt-BR');
+  document.querySelector('#sync').textContent='● DADOS DO MIDDLE EARTH · '+new Date().toLocaleTimeString('pt-BR');
 }
 
 async function load(){
