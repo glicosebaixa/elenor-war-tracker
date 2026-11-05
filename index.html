@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FutureOT War Tracker</title>
+<title>Middle Earth War Tracker</title>
 <link rel="stylesheet" href="style.css?v=20261007-2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -10,7 +10,7 @@
 <body>
 <main class="wrap">
 <header class="hero">
-  <div><div class="eyebrow">FUTUREOT / WAR TRACKER</div><h1>Monitoramento de guerra</h1><p>Puro Golpe × Bloodwar · level, online/offline, level ups, mortes e Top Frags.</p></div>
+  <div><div class="eyebrow">MIDDLE EARTH / WAR TRACKER</div><h1>Monitoramento de guerra</h1><p>Cama de Gato × Real Madrid · level, online/offline, level ups, mortes e Top Frags.</p></div>
   <div class="hero-right"><div class="clock" id="clock">--:--:--</div><div class="hero-actions"><button id="alerts" class="refresh-btn">🔔 Ativar alertas</button><button id="refresh" class="refresh-btn">↻ Atualizar</button><a class="admin-link" href="admin.html">⚙ Admin</a></div></div>
 </header>
 
@@ -27,13 +27,13 @@
   <div><span>PRÓXIMA ATUALIZAÇÃO</span><b id="nextRefresh">03:00</b></div>
 </div>
 
-<div class="notice"><span>Regra: o tracker avisa quando detecta aumento de <b>1 ou mais levels</b>. A leitura automática tenta atualizar a cada minuto; se o FutureOT bloquear a leitura, os dados anteriores são preservados.</span><span id="sync">Sincronizando...</span></div>
+<div class="notice"><span>Regra: o tracker avisa quando detecta aumento de <b>1 ou mais levels</b>. A leitura automática tenta atualizar a cada minuto; se o Middle Earth bloquear a leitura, os dados anteriores são preservados.</span><span id="sync">Sincronizando...</span></div>
 <div id="levelUpNotice"></div>
 <div class="toolbar"><input id="search" type="search" placeholder="🔎 Buscar jogador..." autocomplete="off"><select id="statusFilter"><option value="all">Todos os status</option><option value="online">Online</option><option value="offline">Offline</option><option value="pending">Aguardando leitura</option><option value="levelup">Level up recente</option></select></div>
 <div id="topFrags"></div>
 <div id="groups" class="groups-grid"></div>
 <div id="deaths"></div>
-<footer>Última atualização: <span id="updated">--</span> · FutureOT · dados públicos do servidor.</footer>
+<footer>Última atualização: <span id="updated">--</span> · Middle Earth · dados públicos do servidor.</footer>
 </main>
 <script src="viewer.js?v=20261007-2"></script>
 </body>
